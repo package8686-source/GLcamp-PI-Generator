@@ -176,7 +176,8 @@ export default function Home() {
   }, []);
 
   const totals = useMemo(() => {
-    const billableFreight = invoice.freightIncludedInPrice ? 0 : invoice.freightCharge;
+    const freightShownAsIncluded = invoice.shippingMethod === "DDP" && invoice.freightIncludedInPrice;
+    const billableFreight = freightShownAsIncluded ? 0 : invoice.freightCharge;
 
     return products.reduce(
       (acc, product) => {
@@ -190,10 +191,11 @@ export default function Home() {
       },
       { subtotal: 0, tax: 0, productAmount: 0, total: billableFreight }
     );
-  }, [products, invoice.freightCharge, invoice.freightIncludedInPrice]);
+  }, [products, invoice.freightCharge, invoice.freightIncludedInPrice, invoice.shippingMethod]);
 
   const freightSummaryLabel = `${invoice.shippingMethod} Shipping Freight`;
-  const freightSummaryValue = invoice.freightIncludedInPrice
+  const freightShownAsIncluded = invoice.shippingMethod === "DDP" && invoice.freightIncludedInPrice;
+  const freightSummaryValue = freightShownAsIncluded
     ? "/"
     : money(invoice.freightCharge, invoice.currency);
 
@@ -468,6 +470,7 @@ export default function Home() {
               <input
                 type="checkbox"
                 checked={invoice.freightIncludedInPrice}
+                disabled={invoice.shippingMethod !== "DDP"}
                 onChange={(event) =>
                   setInvoice((prev) => ({
                     ...prev,
@@ -691,7 +694,9 @@ export default function Home() {
                 const tax = subtotal * (product.taxRate / 100);
                 return (
                   <tr key={product.id}>
-                    <td>{product.image ? <img className="product-thumb" src={product.image} alt="" /> : "-"}</td>
+                    <td className="product-image-cell">
+                      {product.image ? <img className="product-thumb" src={product.image} alt="" /> : "-"}
+                    </td>
                     <td>{product.description || "-"}</td>
                     <td>{product.sku || "-"}</td>
                     <td>{product.quantity}</td>

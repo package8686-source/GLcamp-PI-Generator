@@ -403,10 +403,19 @@ select:focus {
   vertical-align: middle;
 }
 
+.product-image-cell {
+  width: 132px;
+  text-align: center;
+}
+
 .product-thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
+  display: block;
+  width: 120px;
+  height: 120px;
+  padding: 5px;
+  margin: 0 auto;
+  object-fit: contain;
+  background: #fbfcfd;
   border: 1px solid var(--line);
   border-radius: 6px;
 }
