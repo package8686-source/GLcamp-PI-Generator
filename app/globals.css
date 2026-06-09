@@ -123,6 +123,24 @@ label {
   font-weight: 700;
 }
 
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  min-height: 34px;
+  color: var(--ink);
+}
+
+.checkbox-row input {
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--green);
+  box-shadow: none;
+}
+
 input,
 textarea,
 select {

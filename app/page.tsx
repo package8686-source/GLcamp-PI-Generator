@@ -12,6 +12,14 @@ import {
 } from "lucide-react";
 
 type Currency = "USD" | "EUR" | "GBP" | "AUD" | "CAD" | "AED";
+type ShippingType =
+  | "DDP"
+  | "CIF"
+  | "FOB"
+  | "Sea Freight"
+  | "Truck Freight"
+  | "Air Freight"
+  | "Express Delivery";
 
 type CompanyInfo = {
   templateName: string;
@@ -50,8 +58,9 @@ type InvoiceState = {
   issueDate: string;
   validityDate: string;
   currency: Currency;
-  shippingMethod: string;
+  shippingMethod: ShippingType;
   freightCharge: number;
+  freightIncludedInPrice: boolean;
   paymentTerms: string;
   remarks: string;
 };
@@ -64,6 +73,16 @@ const currencySymbols: Record<Currency, string> = {
   CAD: "C$",
   AED: "د.إ"
 };
+
+const shippingTypes: ShippingType[] = [
+  "DDP",
+  "CIF",
+  "FOB",
+  "Sea Freight",
+  "Truck Freight",
+  "Air Freight",
+  "Express Delivery"
+];
 
 const defaultCompany: CompanyInfo = {
   templateName: "GLcamp Default",
@@ -134,8 +153,9 @@ export default function Home() {
     issueDate: today(),
     validityDate: "",
     currency: "USD",
-    shippingMethod: "By sea",
+    shippingMethod: "DDP",
     freightCharge: 0,
+    freightIncludedInPrice: false,
     paymentTerms: "30% deposit, 70% balance before shipment",
     remarks: "Prices are valid within the quotation period. Production starts after deposit confirmation."
   });
@@ -156,6 +176,8 @@ export default function Home() {
   }, []);
 
   const totals = useMemo(() => {
+    const billableFreight = invoice.freightIncludedInPrice ? 0 : invoice.freightCharge;
+
     return products.reduce(
       (acc, product) => {
         const subtotal = product.quantity * product.unitPrice;
@@ -166,9 +188,14 @@ export default function Home() {
         acc.total += subtotal + tax;
         return acc;
       },
-      { subtotal: 0, tax: 0, productAmount: 0, total: invoice.freightCharge }
+      { subtotal: 0, tax: 0, productAmount: 0, total: billableFreight }
     );
-  }, [products, invoice.freightCharge]);
+  }, [products, invoice.freightCharge, invoice.freightIncludedInPrice]);
+
+  const freightSummaryLabel = `${invoice.shippingMethod} Shipping Freight`;
+  const freightSummaryValue = invoice.freightIncludedInPrice
+    ? "/"
+    : money(invoice.freightCharge, invoice.currency);
 
   const updateCompany = (key: keyof CompanyInfo, value: string) => {
     setCompany((prev) => ({ ...prev, [key]: value }));
@@ -408,10 +435,21 @@ export default function Home() {
             <div className="two-col">
               <label>
                 Shipping method
-                <input
+                <select
                   value={invoice.shippingMethod}
-                  onChange={(event) => updateInvoice("shippingMethod", event.target.value)}
-                />
+                  onChange={(event) =>
+                    setInvoice((prev) => ({
+                      ...prev,
+                      shippingMethod: event.target.value as ShippingType
+                    }))
+                  }
+                >
+                  {shippingTypes.map((shippingType) => (
+                    <option key={shippingType} value={shippingType}>
+                      {shippingType}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label>
                 Shipping Freight
@@ -426,6 +464,19 @@ export default function Home() {
                 />
               </label>
             </div>
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={invoice.freightIncludedInPrice}
+                onChange={(event) =>
+                  setInvoice((prev) => ({
+                    ...prev,
+                    freightIncludedInPrice: event.target.checked
+                  }))
+                }
+              />
+              Included in price / show as /
+            </label>
             <label>
               Payment terms
               <textarea
@@ -618,7 +669,7 @@ export default function Home() {
               <p>Valid Until: {invoice.validityDate || "-"}</p>
               <p>Currency: {invoice.currency}</p>
               <p>Shipping: {invoice.shippingMethod}</p>
-              <p>Shipping Freight: {money(invoice.freightCharge, invoice.currency)}</p>
+              <p>{freightSummaryLabel}: {freightSummaryValue}</p>
             </div>
           </section>
 
@@ -668,8 +719,8 @@ export default function Home() {
                 <strong>{money(totals.productAmount, invoice.currency)}</strong>
               </div>
               <div>
-                <span>Shipping Freight</span>
-                <strong>{money(invoice.freightCharge, invoice.currency)}</strong>
+                <span>{freightSummaryLabel}</span>
+                <strong>{freightSummaryValue}</strong>
               </div>
               <div className="grand-total">
                 <span>Total Amount</span>
