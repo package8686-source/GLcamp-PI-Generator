@@ -9,7 +9,8 @@ A Next.js web app for creating GLcamp / Guangzhou Lvguang Trading Co., Ltd. prof
 - Save and reload multiple company templates with browser local storage
 - Upload company logo, company seal, and product images
 - Add, edit, and remove multiple product rows
-- Automatic subtotal, tax, and grand total calculation
+- Automatic product amount, shipping freight, tax, and grand total calculation
+- Separate Shipping Freight line in the invoice PDF summary
 - Currency selector: USD, EUR, GBP, AUD, CAD, AED
 - Automatic PI number API: `/api/pi-number`
 - Live proforma invoice preview

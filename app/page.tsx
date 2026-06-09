@@ -51,6 +51,7 @@ type InvoiceState = {
   validityDate: string;
   currency: Currency;
   shippingMethod: string;
+  freightCharge: number;
   paymentTerms: string;
   remarks: string;
 };
@@ -134,6 +135,7 @@ export default function Home() {
     validityDate: "",
     currency: "USD",
     shippingMethod: "By sea",
+    freightCharge: 0,
     paymentTerms: "30% deposit, 70% balance before shipment",
     remarks: "Prices are valid within the quotation period. Production starts after deposit confirmation."
   });
@@ -160,12 +162,13 @@ export default function Home() {
         const tax = subtotal * (product.taxRate / 100);
         acc.subtotal += subtotal;
         acc.tax += tax;
+        acc.productAmount += subtotal + tax;
         acc.total += subtotal + tax;
         return acc;
       },
-      { subtotal: 0, tax: 0, total: 0 }
+      { subtotal: 0, tax: 0, productAmount: 0, total: invoice.freightCharge }
     );
-  }, [products]);
+  }, [products, invoice.freightCharge]);
 
   const updateCompany = (key: keyof CompanyInfo, value: string) => {
     setCompany((prev) => ({ ...prev, [key]: value }));
@@ -402,13 +405,27 @@ export default function Home() {
                 />
               </label>
             </div>
-            <label>
-              Shipping method
-              <input
-                value={invoice.shippingMethod}
-                onChange={(event) => updateInvoice("shippingMethod", event.target.value)}
-              />
-            </label>
+            <div className="two-col">
+              <label>
+                Shipping method
+                <input
+                  value={invoice.shippingMethod}
+                  onChange={(event) => updateInvoice("shippingMethod", event.target.value)}
+                />
+              </label>
+              <label>
+                Shipping Freight
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={invoice.freightCharge}
+                  onChange={(event) =>
+                    setInvoice((prev) => ({ ...prev, freightCharge: Number(event.target.value) }))
+                  }
+                />
+              </label>
+            </div>
             <label>
               Payment terms
               <textarea
@@ -601,6 +618,7 @@ export default function Home() {
               <p>Valid Until: {invoice.validityDate || "-"}</p>
               <p>Currency: {invoice.currency}</p>
               <p>Shipping: {invoice.shippingMethod}</p>
+              <p>Shipping Freight: {money(invoice.freightCharge, invoice.currency)}</p>
             </div>
           </section>
 
@@ -646,15 +664,15 @@ export default function Home() {
             </div>
             <div className="totals-card">
               <div>
-                <span>Subtotal</span>
-                <strong>{money(totals.subtotal, invoice.currency)}</strong>
+                <span>Product Amount</span>
+                <strong>{money(totals.productAmount, invoice.currency)}</strong>
               </div>
               <div>
-                <span>Tax</span>
-                <strong>{money(totals.tax, invoice.currency)}</strong>
+                <span>Shipping Freight</span>
+                <strong>{money(invoice.freightCharge, invoice.currency)}</strong>
               </div>
               <div className="grand-total">
-                <span>Total</span>
+                <span>Total Amount</span>
                 <strong>{money(totals.total, invoice.currency)}</strong>
               </div>
               {company.seal && <img className="seal" src={company.seal} alt="Company seal" />}
