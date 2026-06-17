@@ -1,21 +1,32 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2020"],
-    "allowJs": false,
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src", "types", "vite.config.ts"],
-  "exclude": ["node_modules", "app", ".next", "dist"]
+  "include": ["next-env.d.ts", "app/**/*.ts", "app/**/*.tsx", "types/**/*.d.ts", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "src",
+    "dist",
+    "GLcamp-Product-Catalog",
+    "GLcamp-PI-Generator",
+    "backup-mixed-project-20260609",
+    "glcamp-pi-clean"
+  ]
 }
