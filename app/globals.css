@@ -519,6 +519,33 @@ select:focus {
   border-bottom: 1px solid var(--line);
 }
 
+.totals-card > .payment-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 8px;
+  border-bottom: 0;
+}
+
+.payment-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.payment-totals span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.payment-totals strong {
+  color: var(--green);
+  white-space: nowrap;
+}
+
 .grand-total {
   color: var(--green);
   font-size: 18px;

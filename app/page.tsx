@@ -74,6 +74,21 @@ type InvoiceState = {
   remarks: string;
 };
 
+const paymentPriceOptions = [
+  {
+    label: "AliExpress Payment",
+    multiplier: 1
+  },
+  {
+    label: "PayPal Commercial Invoice - 5% Discount",
+    multiplier: 0.95
+  },
+  {
+    label: "Business Bank Transfer - 8% Discount",
+    multiplier: 0.92
+  }
+] as const;
+
 const currencySymbols: Record<Currency, string> = {
   USD: "$",
   EUR: "€",
@@ -163,6 +178,13 @@ function getGroupTotals(
     },
     { subtotal: 0, tax: 0, productAmount: 0, total: billableFreight }
   );
+}
+
+function getPaymentPrices(totalAmount: number) {
+  return paymentPriceOptions.map((option) => ({
+    ...option,
+    amount: totalAmount * option.multiplier
+  }));
 }
 
 export default function Home() {
@@ -1034,6 +1056,14 @@ export default function Home() {
                         <span>Total Amount</span>
                         <strong>{money(groupTotals.total, invoice.currency)}</strong>
                       </div>
+                      <div className="payment-totals">
+                        {getPaymentPrices(groupTotals.total).map((option) => (
+                          <div key={option.label}>
+                            <span>{option.label}</span>
+                            <strong>{money(option.amount, invoice.currency)}</strong>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </section>
                 );
@@ -1094,6 +1124,14 @@ export default function Home() {
                   <div className="grand-total">
                     <span>Total Amount</span>
                     <strong>{money(totals.total, invoice.currency)}</strong>
+                  </div>
+                  <div className="payment-totals">
+                    {getPaymentPrices(totals.total).map((option) => (
+                      <div key={option.label}>
+                        <span>{option.label}</span>
+                        <strong>{money(option.amount, invoice.currency)}</strong>
+                      </div>
+                    ))}
                   </div>
                   {company.seal && <img className="seal" src={company.seal} alt="Company seal" />}
                 </div>
